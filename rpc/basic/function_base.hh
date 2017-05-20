@@ -8,7 +8,7 @@
  * @nortrom
  * @file: function_base.hh
  * @author: leaveschen
- * @date: 2017-05-20, 15:08:36
+ * @date: 2017-05-20, 20:43:12
  * @version 1.0
  * @brief:
  **/
@@ -22,7 +22,7 @@
 #include <utility>
 #include <type_traits>
 
-/****** Class or Function declear ******/
+/****** Class or Function declare ******/
 
 namespace rpclite {
 namespace internal {

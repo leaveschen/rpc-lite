@@ -8,7 +8,7 @@
  * @nortrom
  * @file: safe_queue.hh
  * @author: leaveschen
- * @date: 2017-05-20, 20:22:24
+ * @date: 2017-05-20, 20:42:59
  * @version 1.0
  * @brief:
  **/
@@ -24,7 +24,7 @@
 #include <queue>
 #include <condition_variable>
 
-/****** Class or Function declear ******/
+/****** Class or Function declare ******/
 
 namespace rpclite {
 

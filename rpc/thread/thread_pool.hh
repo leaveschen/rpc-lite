@@ -8,7 +8,7 @@
  * @nortrom
  * @file: thread_pool.hh
  * @author: leaveschen
- * @date: 2017-05-20, 20:23:19
+ * @date: 2017-05-20, 20:42:49
  * @version 1.0
  * @brief:
  **/
@@ -22,9 +22,9 @@
 #include <thread>
 #include <future>
 #include <functional>
-#include "src/thread/safe_queue.hh"
+#include "rpc/thread/safe_queue.hh"
 
-/****** Class or Function declear ******/
+/****** Class or Function declare ******/
 
 namespace rpclite {
 
