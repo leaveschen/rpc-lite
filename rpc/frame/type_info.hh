@@ -70,7 +70,7 @@ private:
 
 };
 
-template<class T, >
+template<class T>
 struct TypeCreator;
 
 template<>

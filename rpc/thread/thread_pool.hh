@@ -59,12 +59,18 @@ public:
 	ThreadPool& operator=(ThreadPool const&) = delete;
 	~ThreadPool() { for (auto& t : _threads) { t.join(); }}
 
+	// interface
 	template<class F, class... Args>
 	void submit(F&& f, Args&&... args) {
 		auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 		_task_queue.push(task);
 	}
-	
+
+	// another interface for direct std::function object
+	void submit(std::function<void()>&& f) {
+		_task_queue.push(std::forward<std::function<void()>>(f));
+	}
+
 };
 
 } // rpclite
