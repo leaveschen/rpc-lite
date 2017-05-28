@@ -18,6 +18,8 @@
 
 /****** Include Library ******/
 
+#include <string>
+#include "rpc/frame/type_info.hh"
 
 /****** Class or Function declare ******/
 
@@ -36,7 +38,21 @@ private:
 		bool _bool;
 	};
 
+	// special member
 	std::string _string;
+
+	// type
+	TypeInfo::TypeCode _type;
+
+public:
+	// constructor
+	UniType(int v) : _int(v), _type(TypeInfo::TypeCode::INT32) {}
+	UniType(long v) : _long(v), _type(TypeInfo::TypeCode::INT64) {}
+	UniType(unsigned int v) : _uint(v), _type(TypeInfo::TypeCode::UINT32) {}
+	UniType(unsigned long v) : _ulong(v), _type(TypeInfo::TypeCode::UINT64) {}
+	UniType(float v) : _float(v), _type(TypeInfo::TypeCode::FLOAT) {}
+	UniType(double v) : _double(v), _type(TypeInfo::TypeCode::DOUBLE) {}
+	UniType(bool v) : _bool(v), _type(TypeInfo::TypeCode::BOOL) {}
 };
 
 } // rpclite
