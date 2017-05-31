@@ -56,6 +56,50 @@ decltype(auto) invoke_by_tuple(F&& f, std::tuple<Args...>&& args) {
 			std::index_sequence_for<Args...>{});
 }
 
+// function traits basis
+struct func_ret_void {};
+struct func_ret_non_void {};
+struct func_arg_void {};
+struct func_arg_non_void {};
+
+// function traits, return type traits
+template<class T>
+struct func_return_type_traits { typedef func_ret_non_void type; };
+
+template<>
+struct func_return_type_traits<void> { typedef func_ret_void type; };
+
+// function traits, args count traits
+template<size_t N>
+struct func_args_count_traits { typedef func_arg_non_void type; };
+
+template<>
+struct func_args_count_traits<0> { typedef func_arg_void type; };
+
+// function traits
+template<class F>
+struct func_traits : func_traits<decltype(&F::operator())> {};
+
+template<class C, class R, class... Args>
+struct func_traits<R(C::*)(Args...)> : func_traits<R(Args...)> {};
+
+template<class C, class R, class... Args>
+struct func_traits<R(C::*)(Args...) const> : func_traits<R(Args...)> {};
+
+template<class R, class... Args>
+struct func_traits<R(*)(Args...)> : func_traits<R(Args...)> {};
+
+template<class R, class... Args>
+struct func_traits<R(Args...)> {
+	typedef R result_t;
+	typedef std::tuple<Args...> args_tuple_t;
+	constexpr static size_t args_c = sizeof...(Args);
+
+	typedef typename func_return_type_traits<result_t>::type func_return_type_t;
+	typedef typename func_args_count_traits<args_c>::type func_args_count_t;
+};
+
+
 } // internal
 } // rpclite
 
