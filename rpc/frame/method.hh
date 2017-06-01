@@ -25,7 +25,36 @@
 
 namespace rpclite {
 
-// method call with uniformed member object & normal function
+/* convert Merber object to std::tuple */
+namespace internal {
+
+template<size_t I, class... Args>
+struct member_to_tuple_helper;
+
+template<size_t I, class T, class... Rest>
+struct member_to_tuple_helper<I, T, Rest...> {
+	static std::tuple<T, Rest...> impl(Member& member) {
+		return std::tuple_cat(std::forward_as_tuple(member[I].get<T>()),
+				member_to_tuple_helper<I+1, Rest...>::impl(member));
+	}
+};
+
+template<size_t I>
+struct member_to_tuple_helper<I> {
+	static std::tuple<> impl(Member&) {
+		return std::tuple<>();
+	}
+};
+
+} // internal
+
+// convert Merber object to std::tuple wrapper
+template<class... Args>
+void member_to_tuple(Member& member, std::tuple<Args...>& t) {
+	t = internal::member_to_tuple_helper<0, Args...>::impl(member);
+}
+
+/* method call with uniformed member object & normal function */
 namespace internal {
 
 template<class F>
@@ -37,7 +66,8 @@ Member method_call_helper(F&& f, Member&& arg, func_ret_void const&, func_arg_vo
 template<class F>
 Member method_call_helper(F&& f, Member&& arg, func_ret_void const&, func_arg_non_void const&) {
 	typename func_traits<F>::args_tuple_t args_tuple;
-	arg.to_tuple(args_tuple);
+	//arg.to_tuple(args_tuple);
+	member_to_tuple(arg, args_tuple);
 	invoke_by_tuple(f, args_tuple);
 	return Member();
 }
@@ -51,7 +81,8 @@ Member method_call_helper(F&& f, Member&& arg, func_ret_non_void const&, func_ar
 template<class F>
 Member method_call_helper(F&& f, Member&& arg, func_ret_non_void const&, func_arg_non_void const&) {
 	typename func_traits<F>::args_tuple_t args_tuple;
-	arg.to_tuple(args_tuple);
+	//arg.to_tuple(args_tuple);
+	member_to_tuple(arg, args_tuple);
 	auto r = invoke_by_tuple(f, args_tuple);
 	return Member(r);
 }
@@ -78,7 +109,8 @@ Member method_call_helper(R C::* f, C1&& obj, Member&& arg, func_ret_void const&
 template<class C, class R, class C1>
 Member method_call_helper(R C::* f, C1&& obj, Member&& arg, func_ret_void const&, func_arg_non_void const&) {
 	typename func_traits<decltype(f)>::args_tuple_t args_tuple;
-	arg.to_tuple(args_tuple);
+	//arg.to_tuple(args_tuple);
+	member_to_tuple(arg, args_tuple);
 	invoke_by_tuple(f, obj, args_tuple);
 	return Member();
 }
@@ -92,7 +124,8 @@ Member method_call_helper(R C::* f, C1&& obj, Member&& arg, func_ret_non_void co
 template<class C, class R, class C1>
 Member method_call_helper(R C::* f, C1&& obj, Member&& arg, func_ret_non_void const&, func_arg_non_void const&) {
 	typename func_traits<decltype(f)>::args_tuple_t args_tuple;
-	arg.to_tuple(args_tuple);
+	//arg.to_tuple(args_tuple);
+	member_to_tuple(arg, args_tuple);
 	auto r = invoke_by_tuple(f, obj, args_tuple);
 	return Member(r);
 }
@@ -109,6 +142,7 @@ Member method_call(R C::* f, C1&& obj, Member&& arg) {
 			typename internal::func_traits<decltype(f)>::func_return_type_t(),
 			typename internal::func_traits<decltype(f)>::func_args_count_t());
 }
+
 
 } // rpclite
 

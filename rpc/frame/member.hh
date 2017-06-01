@@ -60,10 +60,21 @@ public:
 	Member(int v) : _int(v) {}
 
 public:
+	// TODO: implement subscript operator
+	Member& operator[] (size_t pos) {
+		return *this;
+	}
+
+	// TODO: implement get
+	template<class T>
+	T get() { return static_cast<T>(0); }
+
 	// member to std::tuple
 	template<class T>
 	void to_tuple(T& tuple) {}
 };
+
+
 
 } // rpclite
 
