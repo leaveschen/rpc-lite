@@ -53,7 +53,7 @@ private:
 		_typecode(typecode), _restrict(restrict) {}
 
 	std::string signature() const {
-		string sign;
+		std::string sign;
 		switch (_typecode) {
 			case TypeCode::VOID: sign = "v"; break;
 			case TypeCode::INT32: sign = "i"; break;

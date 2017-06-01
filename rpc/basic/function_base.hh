@@ -49,9 +49,27 @@ decltype(auto) invoke_by_tuple_helper(F&& f,
 	return f(std::get<I>(args)...);
 }
 
+template<class C, class R, class C1, class... Args, size_t... I>
+decltype(auto) invoke_by_tuple_helper(R C::* f,
+		C1&& obj,
+		std::tuple<Args...>&& args,
+		std::index_sequence<I...>) {
+	static_assert(std::is_member_function_pointer<decltype(f)>::value,
+			"invoke target is not a member function without a normal invoke way");
+	return (std::forward<C1>(obj).*f)(std::get<I>(args)...);
+}
+
 template<class F, class... Args>
 decltype(auto) invoke_by_tuple(F&& f, std::tuple<Args...>&& args) {
 	return invoke_by_tuple_helper(std::forward<F>(f),
+			std::forward<std::tuple<Args...>>(args),
+			std::index_sequence_for<Args...>{});
+}
+
+template<class C, class R, class C1, class... Args>
+decltype(auto) invoke_by_tuple(R C::* f, C1&& obj, std::tuple<Args...>&& args) {
+	return invoke_by_tuple_helper(f,
+			std::forward<C1>(obj),
 			std::forward<std::tuple<Args...>>(args),
 			std::index_sequence_for<Args...>{});
 }
