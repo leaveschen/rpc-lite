@@ -119,13 +119,34 @@ private:
 
 public:
 	template<class T>
-	T get(std::enable_if_t<std::is_same<int, T>::value, _get_tag> = _get_tag()) {
-		return _i32;
-	}
+	T get(std::enable_if_t<std::is_same<int32_t, T>::value, _get_tag> = _get_tag()) { return _i32; }
 
 	template<class T>
-	T get(std::enable_if_t<!std::is_same<int, T>::value, _get_tag> = _get_tag()) {
-		return static_cast<T>(0);
+	T get(std::enable_if_t<std::is_same<int64_t, T>::value, _get_tag> = _get_tag()) { return _i64; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<uint32_t, T>::value, _get_tag> = _get_tag()) { return _u32; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<uint64_t, T>::value, _get_tag> = _get_tag()) { return _u64; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<float, T>::value, _get_tag> = _get_tag()) { return _float; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<double, T>::value, _get_tag> = _get_tag()) { return _double; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<bool, T>::value, _get_tag> = _get_tag()) { return _bool; }
+
+	template<class T>
+	T get(std::enable_if_t<std::is_same<std::string, T>::value, _get_tag> = _get_tag()) { return _string; }
+
+	template<class T, class V = typename T::value_type>
+	T get(std::enable_if_t<std::is_same<T, std::vector<V>>::value, _get_tag> = _get_tag()) {
+		T ret;
+		for (auto& p : _vector) { ret.push_back(p->get<V>()); }
+		return std::move(ret);
 	}
 
 };
