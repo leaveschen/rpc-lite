@@ -39,13 +39,24 @@ private:
 
 	struct Block {
 		std::array<Item, N> array;
+		Item* free;
+		std::unique_ptr<Block> next;
 
-		Block() {}
+		Block() {
+			for (size_type i = 0; i < N-1; ++i) { array[i].next = &array[i+1]; }
+			free = &array[0];
+			array[N-1].next = nullptr;
+		}
+
+		void set_next_block(std::unique_ptr<Block> &&n) { next.reset(n.release()); }
 	};
+
+	std::unique_ptr<Block> _p_block;
+	Item* _freelist;
 
 public:
 	// ctors & dtors
-	ObjectPool() noexcept {}
+	ObjectPool() : _p_block(std::make_unique<Block>()), _freelist(_p_block->free) {}
 	ObjectPool(ObjectPool const&) = delete;
 	ObjectPool(ObjectPool &&) = delete;
 	ObjectPool& operator=(ObjectPool const&) = delete;
@@ -61,6 +72,30 @@ public:
 
 	template<class U>
 	inline void destroy(U* p) { p->U::~U(); }
+
+	// interface
+	template<class... Args>
+	T* alloc(Args&&... args) {
+		if (_freelist == nullptr) {
+			auto new_block = std::make_unique<Block>();
+			new_block->set_next_block(std::move(_p_block));
+			_p_block.reset(new_block.release());
+			_freelist = _p_block->free;
+		}
+
+		Item* curr = _freelist;
+		_freelist = curr->next;
+		T* ret = &curr->element;
+		new (ret) T(std::forward<Args>(args)...);
+		return ret;
+	}
+
+	void free(T* t) {
+		t->T::~T();
+		Item* curr = reinterpret_cast<Item*>(t);
+		curr->next = _freelist;
+		_freelist = curr;
+	}
 };
 
 #endif//
